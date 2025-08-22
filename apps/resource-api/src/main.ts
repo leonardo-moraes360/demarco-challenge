@@ -13,7 +13,6 @@ async function bootstrap() {
 
   app.disable('x-powered-by');
 
-  // Configurar CORS
   app.enableCors({
     origin: [
       'http://localhost:5173',

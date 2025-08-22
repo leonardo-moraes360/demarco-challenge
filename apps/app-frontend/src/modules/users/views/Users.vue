@@ -9,7 +9,6 @@ import Input from "@/common/components/Input.vue";
 import Button from "@/common/components/Button.vue";
 import Dropdown from 'primevue/dropdown';
 
-// Store
 const store = usersStore();
 const {
   users,
@@ -26,7 +25,6 @@ const {
   hasPrevPage
 } = storeToRefs(store);
 
-// Modal state
 const isModalOpen = ref(false);
 const modalMode = ref<'create' | 'edit'>('create');
 const selectedUser = ref<User | null>(null);

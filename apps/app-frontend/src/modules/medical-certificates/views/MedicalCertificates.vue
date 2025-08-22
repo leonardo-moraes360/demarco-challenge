@@ -14,7 +14,6 @@ import VoltSelect from '@/volt/Select.vue';
 const router = useRouter();
 const auth = authStore();
 
-// Stores
 const certificatesStore = medicalCertificatesStore();
 const userStore = usersStore();
 
@@ -36,7 +35,6 @@ const {
 
 const { activeUsers: users } = storeToRefs(userStore);
 
-// Modal state
 const isModalOpen = ref(false);
 const modalMode = ref<'create' | 'edit'>('create');
 const selectedCertificate = ref<MedicalCertificate | null>(null);
@@ -74,7 +72,6 @@ function openEditModal(certificate: MedicalCertificate) {
 async function handleSaveCertificate(data: CreateMedicalCertificateRequest | UpdateMedicalCertificateRequest) {
   try {
     if (modalMode.value === 'create') {
-      // Para criação, adicionar o ID do usuário logado como userCreatedById
       const createData = data as CreateMedicalCertificateRequest;
       createData.userCreatedById = auth.user?.id || '';
       
@@ -102,7 +99,6 @@ async function handleDeleteCertificate(certificate: MedicalCertificate) {
   }
 }
 
-// Usar funções do store
 const { formatDate, formatDateTime, getCertificateStatusColor, getCertificateStatusText } = certificatesStore;
 
 const statusOptions = [
@@ -112,7 +108,6 @@ const statusOptions = [
 ];
 
 onMounted(() => {
-  // Verificar se o usuário está autenticado
   if (!auth.isAuthenticated) {
     router.push('/login');
     return;

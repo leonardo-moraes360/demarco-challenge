@@ -10,7 +10,6 @@ export class SearchIcdService {
   async perform(params: SearchIcdDto): Promise<IcdSearchResponseDto> {
     const result = await this.icdProvider.findAll(params);
 
-    // Transformar a resposta da API da OMS para o formato esperado
     return {
       entities: result.destinationEntities || result.entities || [],
       totalCount: result.totalCount,

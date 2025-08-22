@@ -13,7 +13,6 @@ export class AuthService {
 
       console.log('AuthService.login - Login bem-sucedido:', response);
 
-      // Armazenar tokens
       localStorage.setItem('accessToken', response.accessToken);
       localStorage.setItem('refreshToken', response.refreshToken);
       localStorage.setItem('user', JSON.stringify(response.user));
@@ -36,7 +35,6 @@ export class AuthService {
       json: { refreshToken } as RefreshTokenRequest
     }).json<AuthResponse>();
 
-    // Atualizar tokens
     localStorage.setItem('accessToken', response.accessToken);
     localStorage.setItem('refreshToken', response.refreshToken);
     localStorage.setItem('user', JSON.stringify(response.user));
@@ -57,7 +55,6 @@ export class AuthService {
       }
     }
 
-    // Limpar dados locais
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
@@ -70,7 +67,6 @@ export class AuthService {
       console.error('Erro ao fazer logout de todas as sessões:', error);
     }
 
-    // Limpar dados locais
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');

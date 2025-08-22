@@ -4,7 +4,6 @@ import { UsersService, type CreateUserRequest, type UpdateUserRequest, type User
 import type { User } from "@/common/types/auth";
 
 export const usersStore = defineStore("users", () => {
-  // Estado
   const users = ref<User[]>([]);
   const activeUsers = ref<User[]>([]);
   const totalUsers = ref(0);
@@ -13,25 +12,20 @@ export const usersStore = defineStore("users", () => {
   const isLoading = ref(false);
   const error = ref<string | null>(null);
 
-  // Filtros de busca
   const searchName = ref('');
   const searchCpf = ref('');
   const filterStatus = ref<'active' | 'inactive' | ''>('');
 
-  // Computed
   const totalPages = computed(() => Math.ceil(totalUsers.value / pageSize.value));
   const hasNextPage = computed(() => currentPage.value < totalPages.value);
   const hasPrevPage = computed(() => currentPage.value > 1);
   
-  // Cache de usuários ativos para dropdowns
   const activeUsersOptions = computed(() => 
     activeUsers.value.map(user => ({
       label: user.fullName,
       value: user.id
     }))
   );
-
-  // Ações
   async function loadUsers(params?: UsersQueryParams) {
     try {
       isLoading.value = true;
@@ -62,7 +56,6 @@ export const usersStore = defineStore("users", () => {
   async function loadActiveUsers() {
     try {
       if (activeUsers.value.length > 0) {
-        // Retorna cache se já tiver dados
         return activeUsers.value;
       }
 
@@ -83,12 +76,10 @@ export const usersStore = defineStore("users", () => {
     try {
       const user = await UsersService.createUser(data);
       
-      // Atualizar cache de usuários ativos se necessário
       if (user.status === 'active') {
         activeUsers.value.push(user);
       }
       
-      // Recarregar lista principal
       await loadUsers();
       
       return user;
@@ -103,13 +94,10 @@ export const usersStore = defineStore("users", () => {
     try {
       const updatedUser = await UsersService.updateUser(id, data);
       
-      // Atualizar na lista principal
       const index = users.value.findIndex(u => u.id === id);
       if (index !== -1) {
         users.value[index] = updatedUser;
       }
-      
-      // Atualizar cache de usuários ativos
       const activeIndex = activeUsers.value.findIndex(u => u.id === id);
       if (updatedUser.status === 'active') {
         if (activeIndex !== -1) {
@@ -133,14 +121,11 @@ export const usersStore = defineStore("users", () => {
     try {
       await UsersService.deleteUser(id);
       
-      // Remover da lista principal
       const index = users.value.findIndex(u => u.id === id);
       if (index !== -1) {
         users.value.splice(index, 1);
         totalUsers.value--;
       }
-      
-      // Remover do cache de usuários ativos
       const activeIndex = activeUsers.value.findIndex(u => u.id === id);
       if (activeIndex !== -1) {
         activeUsers.value.splice(activeIndex, 1);
@@ -158,7 +143,7 @@ export const usersStore = defineStore("users", () => {
 
   function setPageSize(size: number) {
     pageSize.value = size;
-    currentPage.value = 1; // Reset para primeira página
+    currentPage.value = 1;
   }
 
   function setFilters(filters: {
@@ -169,7 +154,7 @@ export const usersStore = defineStore("users", () => {
     if (filters.name !== undefined) searchName.value = filters.name;
     if (filters.cpf !== undefined) searchCpf.value = filters.cpf;
     if (filters.status !== undefined) filterStatus.value = filters.status;
-    currentPage.value = 1; // Reset para primeira página
+    currentPage.value = 1;
   }
 
   function clearFilters() {
@@ -183,13 +168,11 @@ export const usersStore = defineStore("users", () => {
     error.value = null;
   }
 
-  // Invalidar cache de usuários ativos (útil após mudanças)
   function invalidateActiveUsersCache() {
     activeUsers.value = [];
   }
 
   return {
-    // Estado
     users,
     activeUsers,
     totalUsers,
@@ -201,13 +184,10 @@ export const usersStore = defineStore("users", () => {
     searchCpf,
     filterStatus,
     
-    // Computed
     totalPages,
     hasNextPage,
     hasPrevPage,
     activeUsersOptions,
-    
-    // Ações
     loadUsers,
     loadActiveUsers,
     createUser,

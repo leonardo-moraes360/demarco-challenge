@@ -68,7 +68,6 @@ const handleFileChange = (event: Event) => {
 
 const handleSubmit = () => {
   if (isEdit.value) {
-    // Update request - não inclui arquivo
     const updateData: UpdateMedicalCertificateRequest = {
       icd: form.value.icd,
       icdVersion: form.value.icdVersion,
@@ -78,7 +77,6 @@ const handleSubmit = () => {
     };
     emit('submit', updateData);
   } else {
-    // Create request - inclui arquivo obrigatório
     if (!form.value.file) {
       alert('Por favor, selecione um arquivo');
       return;
@@ -90,7 +88,7 @@ const handleSubmit = () => {
       startsAt: form.value.startsAt,
       endsAt: form.value.endsAt,
       userBelongsToId: form.value.userBelongsToId,
-      userCreatedById: '', // Será preenchido pelo serviço
+      userCreatedById: '',
       file: form.value.file
     };
     emit('submit', createData);
@@ -106,7 +104,7 @@ watch(() => props.isOpen, (isOpen) => {
         icdVersion: props.medicalCertificate.icdVersion,
         startsAt: props.medicalCertificate.startsAt,
         endsAt: props.medicalCertificate.endsAt,
-        file: null, // Não carregamos o arquivo no edit
+        file: null,
         status: props.medicalCertificate.status
       };
     } else {

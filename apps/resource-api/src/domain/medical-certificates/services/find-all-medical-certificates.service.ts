@@ -50,7 +50,6 @@ export class FindAllMedicalCertificateService {
       ...(filters?.userCreatedBy && { userCreatedById: filters.userCreatedBy }),
     };
 
-    // Handle user name searches
     if (filters?.userBelongsToName || filters?.userCreatedByName) {
       const userQuery: any = {};
 
@@ -64,7 +63,6 @@ export class FindAllMedicalCertificateService {
         if (belongsToUserIds.length > 0) {
           query.userBelongsToId = { $in: belongsToUserIds };
         } else {
-          // If no users found, return empty result
           query.userBelongsToId = { $in: [] };
         }
       }
@@ -79,7 +77,6 @@ export class FindAllMedicalCertificateService {
         if (createdByUserIds.length > 0) {
           query.userCreatedById = { $in: createdByUserIds };
         } else {
-          // If no users found, return empty result
           query.userCreatedById = { $in: [] };
         }
       }

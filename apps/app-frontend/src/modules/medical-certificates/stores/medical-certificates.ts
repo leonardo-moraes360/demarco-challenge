@@ -10,7 +10,6 @@ import type {
 } from "@/common/types/medical-certificate";
 
 export const medicalCertificatesStore = defineStore("medicalCertificates", () => {
-  // Estado
   const certificates = ref<MedicalCertificate[]>([]);
   const totalCertificates = ref(0);
   const currentPage = ref(1);
@@ -18,7 +17,6 @@ export const medicalCertificatesStore = defineStore("medicalCertificates", () =>
   const isLoading = ref(false);
   const error = ref<string | null>(null);
 
-  // Filtros de busca
   const searchNumber = ref('');
   const searchIcd = ref('');
   const searchUserName = ref('');
@@ -26,12 +24,9 @@ export const medicalCertificatesStore = defineStore("medicalCertificates", () =>
   const filterUserBelongsTo = ref('');
   const filterUserCreatedBy = ref('');
 
-  // Computed
   const totalPages = computed(() => Math.ceil(totalCertificates.value / pageSize.value));
   const hasNextPage = computed(() => currentPage.value < totalPages.value);
   const hasPrevPage = computed(() => currentPage.value > 1);
-
-  // Computeds para estatísticas
   const activeCertificates = computed(() => 
     certificates.value.filter(cert => cert.status === 'active' && !isCertificateExpired(cert))
   );
@@ -47,7 +42,6 @@ export const medicalCertificatesStore = defineStore("medicalCertificates", () =>
     })
   );
 
-  // Funções utilitárias
   function getDaysRemaining(endDate: string): number {
     const end = new Date(endDate);
     const now = new Date();
@@ -63,10 +57,10 @@ export const medicalCertificatesStore = defineStore("medicalCertificates", () =>
     if (certificate.status === 'inactive') return 'bg-gray-100 text-gray-800';
     
     const daysRemaining = getDaysRemaining(certificate.endsAt);
-    if (daysRemaining < 0) return 'bg-gray-100 text-gray-800'; // Expirado
-    if (daysRemaining <= 7) return 'bg-yellow-100 text-yellow-800'; // Expirando
+    if (daysRemaining < 0) return 'bg-gray-100 text-gray-800';
+    if (daysRemaining <= 7) return 'bg-yellow-100 text-yellow-800';
     
-    return 'bg-green-100 text-green-800'; // Ativo
+    return 'bg-green-100 text-green-800';
   }
 
   function getCertificateStatusText(certificate: MedicalCertificate): string {
@@ -87,7 +81,6 @@ export const medicalCertificatesStore = defineStore("medicalCertificates", () =>
     return new Date(dateString).toLocaleString('pt-BR');
   }
 
-  // Ações
   async function loadCertificates(params?: MedicalCertificatesQueryParams) {
     try {
       isLoading.value = true;
@@ -105,7 +98,6 @@ export const medicalCertificatesStore = defineStore("medicalCertificates", () =>
         userCreatedByName: searchUserName.value || undefined,
       };
       
-      // Remover parâmetros vazios
       Object.keys(queryParams).forEach(key => {
         if (queryParams[key as keyof MedicalCertificatesQueryParams] === '') {
           delete queryParams[key as keyof MedicalCertificatesQueryParams];
@@ -130,7 +122,6 @@ export const medicalCertificatesStore = defineStore("medicalCertificates", () =>
     try {
       const certificate = await MedicalCertificatesService.getCertificate(id);
       
-      // Atualizar na lista se já estiver carregado
       const index = certificates.value.findIndex(c => c.id === id);
       if (index !== -1) {
         certificates.value[index] = certificate;
@@ -147,7 +138,6 @@ export const medicalCertificatesStore = defineStore("medicalCertificates", () =>
     try {
       const certificate = await MedicalCertificatesService.createCertificate(data);
       
-      // Recarregar lista para manter consistência
       await loadCertificates();
       
       return certificate;
@@ -162,7 +152,6 @@ export const medicalCertificatesStore = defineStore("medicalCertificates", () =>
     try {
       const updatedCertificate = await MedicalCertificatesService.updateCertificate(id, data);
       
-      // Atualizar na lista
       const index = certificates.value.findIndex(c => c.id === id);
       if (index !== -1) {
         certificates.value[index] = updatedCertificate;
@@ -180,7 +169,6 @@ export const medicalCertificatesStore = defineStore("medicalCertificates", () =>
     try {
       await MedicalCertificatesService.deleteCertificate(id);
       
-      // Remover da lista
       const index = certificates.value.findIndex(c => c.id === id);
       if (index !== -1) {
         certificates.value.splice(index, 1);
@@ -199,7 +187,7 @@ export const medicalCertificatesStore = defineStore("medicalCertificates", () =>
 
   function setPageSize(size: number) {
     pageSize.value = size;
-    currentPage.value = 1; // Reset para primeira página
+    currentPage.value = 1;
   }
 
   function setFilters(filters: {
@@ -216,7 +204,7 @@ export const medicalCertificatesStore = defineStore("medicalCertificates", () =>
     if (filters.status !== undefined) filterStatus.value = filters.status;
     if (filters.userBelongsTo !== undefined) filterUserBelongsTo.value = filters.userBelongsTo;
     if (filters.userCreatedBy !== undefined) filterUserCreatedBy.value = filters.userCreatedBy;
-    currentPage.value = 1; // Reset para primeira página
+    currentPage.value = 1;
   }
 
   function clearFilters() {
@@ -234,7 +222,6 @@ export const medicalCertificatesStore = defineStore("medicalCertificates", () =>
   }
 
   return {
-    // Estado
     certificates,
     totalCertificates,
     currentPage,
@@ -248,7 +235,6 @@ export const medicalCertificatesStore = defineStore("medicalCertificates", () =>
     filterUserBelongsTo,
     filterUserCreatedBy,
     
-    // Computed
     totalPages,
     hasNextPage,
     hasPrevPage,
@@ -256,7 +242,6 @@ export const medicalCertificatesStore = defineStore("medicalCertificates", () =>
     expiredCertificates,
     expiringSoonCertificates,
     
-    // Ações
     loadCertificates,
     getCertificate,
     createCertificate,
@@ -267,8 +252,6 @@ export const medicalCertificatesStore = defineStore("medicalCertificates", () =>
     setFilters,
     clearFilters,
     clearError,
-    
-    // Funções utilitárias
     getDaysRemaining,
     isCertificateExpired,
     getCertificateStatusColor,

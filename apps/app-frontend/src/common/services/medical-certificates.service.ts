@@ -32,7 +32,6 @@ export class MedicalCertificatesService {
   static async createCertificate(data: CreateMedicalCertificateRequest): Promise<MedicalCertificate> {
     const formData = new FormData();
     
-    // Add all fields to FormData
     Object.entries(data).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         if (key === 'file') {

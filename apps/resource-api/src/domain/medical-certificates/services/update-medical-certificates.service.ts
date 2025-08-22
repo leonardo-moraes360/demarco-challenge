@@ -22,7 +22,6 @@ export class UpdateMedicalCertificateService {
   ): Promise<MedicalCertificateDto> {
     const updateData: any = { ...data };
 
-    // Convert string dates to Date objects for MongoDB
     if (data.startsAt) {
       updateData.startsAt = new Date(data.startsAt);
     }

@@ -11,12 +11,10 @@ const auth = authStore();
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1';
 
-// Store
 const dashboard = dashboardStore();
 const { metrics, isLoading: loading, error } = storeToRefs(dashboard);
 
 const loadMetrics = async () => {
-  // Verificar se o usuário está autenticado
   if (!auth.isAuthenticated) {
     router.push('/login');
     return;
