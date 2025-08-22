@@ -43,7 +43,7 @@ demarco-challenge/
 │   └── resource-api/     # Backend NestJS
 ├── scripts/              # Scripts de automação
 ├── docker-compose.yml    # Orquestração de containers
-└── env.example          # Variáveis de ambiente
+└── .env.example         # Variáveis de ambiente
 ```
 
 ### Padrões Arquiteturais
@@ -152,11 +152,21 @@ src/
 
 3. **Configure as variáveis de ambiente**:
    ```bash
-   cp env.example .env
+   cp .env.example .env
    # Edite o arquivo .env com suas configurações
    ```
 
 ## 🔧 Variáveis de Ambiente
+
+O projeto inclui um arquivo `.env.example` com todas as variáveis de ambiente necessárias documentadas. Para configurar o ambiente:
+
+```bash
+# Copie o arquivo de exemplo
+cp .env.example .env
+
+# Edite o arquivo .env com suas configurações específicas
+# IMPORTANTE: Altere as chaves secretas em produção!
+```
 
 ### Configurações da Aplicação
 
