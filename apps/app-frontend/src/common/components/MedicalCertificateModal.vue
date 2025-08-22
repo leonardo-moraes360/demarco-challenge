@@ -4,8 +4,10 @@ import VoltDialog from '@/volt/Dialog.vue';
 import VoltInputText from '@/volt/InputText.vue';
 import VoltSelect from '@/volt/Select.vue';
 import VoltButton from '@/volt/Button.vue';
+import IcdAutocomplete from './IcdAutocomplete.vue';
 import type { MedicalCertificate, CreateMedicalCertificateRequest, UpdateMedicalCertificateRequest } from '@/common/types/medical-certificate';
 import type { User } from '@/common/types/auth';
+import type { IcdEntity } from '@/common/services/icd.service';
 
 interface Props {
   isOpen: boolean;
@@ -35,6 +37,8 @@ const form = ref({
   status: 'active' as 'active' | 'inactive'
 });
 
+const selectedIcdEntity = ref<IcdEntity | null>(null);
+
 const isEdit = computed(() => !!props.medicalCertificate);
 
 const statusOptions = [
@@ -57,6 +61,7 @@ const resetForm = () => {
     file: null,
     status: 'active'
   };
+  selectedIcdEntity.value = null;
 };
 
 const handleFileChange = (event: Event) => {
@@ -69,7 +74,7 @@ const handleFileChange = (event: Event) => {
 const handleSubmit = () => {
   if (isEdit.value) {
     const updateData: UpdateMedicalCertificateRequest = {
-      icd: form.value.icd,
+      icd: selectedIcdEntity.value?.code || form.value.icd,
       icdVersion: form.value.icdVersion,
       startsAt: form.value.startsAt,
       endsAt: form.value.endsAt,
@@ -83,7 +88,7 @@ const handleSubmit = () => {
     }
     
     const createData: CreateMedicalCertificateRequest = {
-      icd: form.value.icd,
+      icd: selectedIcdEntity.value?.code || form.value.icd,
       icdVersion: form.value.icdVersion,
       startsAt: form.value.startsAt,
       endsAt: form.value.endsAt,
@@ -93,6 +98,10 @@ const handleSubmit = () => {
     };
     emit('submit', createData);
   }
+};
+
+const handleIcdSelect = (icd: IcdEntity) => {
+  selectedIcdEntity.value = icd;
 };
 
 watch(() => props.isOpen, (isOpen) => {
@@ -107,6 +116,7 @@ watch(() => props.isOpen, (isOpen) => {
         file: null,
         status: props.medicalCertificate.status
       };
+      selectedIcdEntity.value = null;
     } else {
       resetForm();
     }
@@ -143,11 +153,11 @@ watch(() => props.isOpen, (isOpen) => {
           <label class="block text-sm font-medium text-slate-700 mb-2">
             Código CID *
           </label>
-          <VoltInputText
+          <IcdAutocomplete
             v-model="form.icd"
-            placeholder="Ex: E10.1"
-            class="w-full"
+            placeholder="Digite para buscar CID..."
             required
+            @select="handleIcdSelect"
           />
         </div>
 
