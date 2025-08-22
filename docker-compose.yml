@@ -1,0 +1,186 @@
+services:
+  # =============================================================================
+  # APLICAÇÕES PRINCIPAIS
+  # =============================================================================
+
+  # Frontend Application
+  app-frontend:
+    build:
+      context: .
+      dockerfile: apps/app-frontend/Dockerfile
+      target: production
+    container_name: demarco-frontend
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL}
+    depends_on:
+      - resource-api
+    networks:
+      - demarco-network
+    restart: unless-stopped
+
+  # Backend Application
+  resource-api:
+    build:
+      context: .
+      dockerfile: apps/resource-api/Dockerfile
+      target: production
+    container_name: demarco-backend
+    ports:
+      - "3000:3000"
+    environment:
+      # App Configuration
+      - APP_ENV=${APP_ENV}
+      - APP_PORT=${APP_PORT}
+
+      # JWT Configuration
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_ACCESS_TOKEN_EXPIRES_IN=${JWT_ACCESS_TOKEN_EXPIRES_IN}
+      - JWT_REFRESH_TOKEN_EXPIRES_IN=${JWT_REFRESH_TOKEN_EXPIRES_IN}
+
+      # Store Configuration (LocalStack)
+      - STORE_URI=${STORE_URI}
+      - STORE_BUCKET_NAME=${STORE_BUCKET_NAME}
+      - STORE_PRESIGNED_URI_TTL=${STORE_PRESIGNED_URI_TTL}
+      - STORE_ACCESS_KEY_ID=${STORE_ACCESS_KEY_ID}
+      - STORE_SECRET_ACCESS_KEY=${STORE_SECRET_ACCESS_KEY}
+      - STORE_REGION=${STORE_REGION}
+
+      # ICD Configuration
+      - ICD_API_URI=${ICD_API_URI}
+      - ICD_API_URI_FALLBACK=${ICD_API_URI_FALLBACK}
+      - ICD_OAUTH_TOKEN_URI=${ICD_OAUTH_TOKEN_URI}
+      - ICD_OAUTH_CLIENT_ID=${ICD_OAUTH_CLIENT_ID}
+      - ICD_OAUTH_CLIENT_SECRET=${ICD_OAUTH_CLIENT_SECRET}
+      - ICD_OAUTH_SCOPE=${ICD_OAUTH_SCOPE}
+      - ICD_OAUTH_GRANT_TYPE=${ICD_OAUTH_GRANT_TYPE}
+
+      # Database Configuration
+      - MONGODB_URI=${MONGODB_URI}
+
+      # Redis Configuration
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_DB=${REDIS_DB}
+    depends_on:
+      - mongodb
+      - redis
+      - localstack
+    networks:
+      - demarco-network
+    restart: unless-stopped
+
+  # =============================================================================
+  # SERVIÇOS DE INFRAESTRUTURA
+  # =============================================================================
+
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: demarco-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=resource-api
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - demarco-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis Cache
+  redis:
+    image: redis:7.2-alpine
+    container_name: demarco-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - demarco-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # LocalStack (S3/MinIO emulator)
+  localstack:
+    image: localstack/localstack:3.0
+    container_name: demarco-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3
+      - DEFAULT_REGION=${LOCALSTACK_REGION}
+      - AWS_DEFAULT_REGION=${LOCALSTACK_REGION}
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+      - PERSISTENCE=1
+    volumes:
+      - localstack_data:/tmp/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - demarco-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ICD API (WHO International Classification of Diseases)
+  icd-api:
+    image: whoicd/icd-api:latest
+    container_name: demarco-icd-api
+    ports:
+      - "8080:8080"
+    environment:
+      - ICD_API_PORT=8080
+      - ICD_API_HOST=0.0.0.0
+    volumes:
+      - icd_data:/app/data
+    networks:
+      - demarco-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+
+volumes:
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
+  localstack_data:
+    driver: local
+  icd_data:
+    driver: local
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+
+networks:
+  demarco-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
