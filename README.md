@@ -194,14 +194,15 @@ VITE_API_BASE_URL=http://localhost:3000/api/v1
 MONGODB_URI=mongodb://localhost:27017/resource-api
 ```
 
-### Configurações do Redis
+### Configurações do Cache (Redis)
 
 ```bash
-# Configurações do Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=
-REDIS_DB=0
+# Configurações do Cache (Redis)
+CACHE_HOST=localhost
+CACHE_PORT=6379
+CACHE_PASSWORD=
+CACHE_DB=0
+CACHE_TTL=3600
 ```
 
 ### Configurações do Storage (S3/MinIO)

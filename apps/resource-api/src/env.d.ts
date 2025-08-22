@@ -84,6 +84,27 @@ declare global {
        * The expiration time for JWT refresh tokens.
        */
       JWT_REFRESH_TOKEN_EXPIRES_IN: string;
+
+      /**
+       * The host for the cache service (Redis).
+       */
+      CACHE_HOST: string;
+      /**
+       * The port for the cache service (Redis).
+       */
+      CACHE_PORT: string;
+      /**
+       * The password for the cache service (Redis).
+       */
+      CACHE_PASSWORD?: string;
+      /**
+       * The database number for the cache service (Redis).
+       */
+      CACHE_DB: string;
+      /**
+       * The TTL for cache entries.
+       */
+      CACHE_TTL: string;
     }
   }
 }

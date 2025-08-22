@@ -60,11 +60,11 @@ services:
       # Database Configuration
       - MONGODB_URI=${MONGODB_URI}
 
-      # Redis Configuration
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_DB=${REDIS_DB}
+      # Cache Configuration
+      - CACHE_HOST=${CACHE_HOST}
+      - CACHE_PORT=${CACHE_PORT}
+      - CACHE_PASSWORD=${CACHE_PASSWORD}
+      - CACHE_DB=${CACHE_DB}
     depends_on:
       - mongodb
       - redis
